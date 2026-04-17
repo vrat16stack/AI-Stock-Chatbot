@@ -1,49 +1,133 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Portfolio AI — Premium Stock Analyst</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
-<style>
-    :root {
-        --bg: #05070a;
-        --card-bg: rgba(17, 25, 40, 0.75);
-        --accent: #00f2ff;
-        --bull: #00ffbd;
-        --bear: #ff4d6d;
-        --text: #ffffff;
-        --text-dim: #94a3b8;
-        --border: rgba(255, 255, 255, 0.1);
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background-color: var(--bg); background-image: radial-gradient(circle at 50% 0%, #1a2333 0%, #05070a 100%); color: var(--text); font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
-    .sidebar { width: 260px; background: rgba(0, 0, 0, 0.3); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-    .sidebar-header { padding: 25px; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 14px; }
-    .history-item { padding: 12px 25px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03); transition: 0.3s; font-size: 13px; color: var(--text-dim); }
-    .history-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
-    .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-    .messages { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
-    .analysis-card { background: var(--card-bg); backdrop-filter: blur(12px); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; animation: slideUp 0.4s ease-out; margin-bottom: 20px; }
-    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-    .card-header { padding: 20px; background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; }
-    .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; }
-    .price-tag { font-size: 20px; font-weight: 700; color: var(--accent); }
-    .verdict-area { padding: 20px; border-top: 1px solid var(--border); }
-    .verdict-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: 800; font-size: 12px; margin-bottom: 10px; text-transform: uppercase; }
-    .BUY { background: rgba(0, 255, 189, 0.15); color: var(--bull); border: 1px solid var(--bull); }
-    .WAIT { background: rgba(255, 188, 0, 0.15); color: #ffbc00; border: 1px solid #ffbc00; }
-    .HOLD { background: rgba(0, 242, 255, 0.15); color: var(--accent); border: 1px solid var(--accent); }
-    .analysis-text { line-height: 1.7; color: var(--text-dim); font-size: 14px; margin-bottom: 15px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
-    th { text-align: left; color: var(--text-dim); padding: 8px; border-bottom: 1px solid var(--border); }
-    td { padding: 10px 8px; border-bottom: 1px solid rgba(255,255,255,0.03); }
-    .input-wrapper { padding: 30px; background: transparent; display: flex; gap: 15px; align-items: center; }
-    #userInput { flex: 1; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: white; outline: none; font-family: inherit; resize: none; transition: 0.3s; }
-    #userInput:focus { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 242, 255, 0.1); }
-    .send-btn { background: var(--accent); color: #000; border: none; padding: 15px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.3s; }
-    .send-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio AI — Premium Stock Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --card-bg: #111827; /* Solid background for visibility */
+            --accent: #00f2ff;
+            --bull: #00ffbd;
+            --bear: #ff4d6d;
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.15);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            background-color: var(--bg); 
+            background-image: radial-gradient(circle at 50% 0%, #1a2333 0%, #05070a 100%);
+            color: var(--text); 
+            font-family: 'Inter', sans-serif; 
+            height: 100vh; 
+            display: flex; 
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px; 
+            background: rgba(0, 0, 0, 0.5);
+            border-right: 1px solid var(--border);
+            display: flex; 
+            flex-direction: column;
+        }
+        .sidebar-header { padding: 25px; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 14px; }
+        .history-item { 
+            padding: 12px 25px; cursor: pointer; border-bottom: 1px solid var(--border);
+            transition: 0.3s; font-size: 13px; color: var(--text-dim);
+        }
+
+        /* Main Chat Area */
+        .chat-container { flex: 1; display: flex; flex-direction: column; }
+        .messages { 
+            flex: 1; 
+            overflow-y: auto; 
+            padding: 30px; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 25px; 
+        }
+
+        /* Message Bubbles */
+        .msg.user {
+            align-self: flex-end;
+            background: #1e293b;
+            padding: 12px 20px;
+            border-radius: 16px 16px 0 16px;
+            max-width: 80%;
+            border: 1px solid var(--border);
+        }
+
+        /* Analysis Card (The Bot Response) */
+        .analysis-card {
+            background: var(--card-bg);
+            border: 1px solid var(--accent);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 700px;
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .card-header { 
+            padding: 20px; 
+            background: rgba(255,255,255,0.05); 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center;
+        }
+        .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: white; }
+        .price-tag { font-size: 20px; font-weight: 700; color: var(--accent); }
+
+        .verdict-area { padding: 20px; }
+        .verdict-badge { 
+            display: inline-block; padding: 6px 16px; border-radius: 20px; 
+            font-weight: 800; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;
+        }
+        .BUY { background: rgba(0, 255, 189, 0.2); color: var(--bull); border: 1px solid var(--bull); }
+        .WAIT { background: rgba(255, 188, 0, 0.2); color: #ffbc00; border: 1px solid #ffbc00; }
+        .HOLD { background: rgba(0, 242, 255, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+
+        .analysis-text { 
+            line-height: 1.8; 
+            color: #e2e8f0; 
+            font-size: 15px; 
+            margin-bottom: 20px;
+            white-space: pre-wrap; /* Preserves AI line breaks */
+        }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; color: white; }
+        th { text-align: left; color: var(--text-dim); padding: 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+
+        /* Input Area */
+        .input-wrapper { 
+            padding: 30px; 
+            display: flex; 
+            gap: 15px; 
+            background: linear-gradient(transparent, var(--bg));
+        }
+        #userInput {
+            flex: 1; background: #1e293b; border: 1px solid var(--border);
+            border-radius: 12px; padding: 15px; color: white; outline: none;
+            font-family: inherit; resize: none;
+        }
+        .send-btn {
+            background: var(--accent); color: #000; border: none;
+            padding: 0 30px; border-radius: 12px; font-weight: 700;
+            cursor: pointer; transition: 0.3s;
+        }
+        .send-btn:hover { transform: translateY(-2px); filter: brightness(1.1); }
+    </style>
 </head>
 <body>
 
@@ -54,48 +138,42 @@
 
 <div class="chat-container">
     <div class="messages" id="messages">
-        <div style="margin: auto; text-align: center; max-width: 400px;">
-            <h1 style="font-size: 32px; margin-bottom: 10px;">Market Intelligence</h1>
-            <p style="color: var(--text-dim);">Analyze any NSE stock with live technicals and multi-year historical data.</p>
+        <div id="welcomeScreen" style="margin: auto; text-align: center; max-width: 450px;">
+            <h1 style="font-size: 36px; margin-bottom: 15px; color: var(--accent);">Market Intelligence</h1>
+            <p style="color: var(--text-dim); line-height: 1.6;">Analyze any NSE stock with live technicals and AI-driven insights. Try "Analyze SBIN" or "Reliance kaisa hai?".</p>
         </div>
     </div>
+
     <div class="input-wrapper">
-        <textarea id="userInput" rows="1" placeholder="Search stock (e.g. 'Analyze SBI')"></textarea>
+        <textarea id="userInput" rows="1" placeholder="Type message..."></textarea>
         <button class="send-btn" onclick="handleSend()">ANALYZE</button>
     </div>
 </div>
 
 <script>
-    // 1. Base URL only (No trailing slash, no /analyze here)
-    const RENDER_BASE_URL = "https://ai-stock-chatbot.onrender.com";
+    const RENDER_URL = "https://ai-stock-chatbot.onrender.com/analyze";
 
     async function handleSend() {
         const input = document.getElementById('userInput');
         const text = input.value.trim();
         if (!text) return;
-        input.value = '';
 
+        // Hide welcome screen on first message
+        const welcome = document.getElementById('welcomeScreen');
+        if(welcome) welcome.style.display = 'none';
+
+        input.value = '';
         appendMsg('user', text);
-        
-        // Let the user know the first request might take time (Render Free Tier sleep)
-        const thinking = appendThinking("Consulting NSE Data & AI... (Waking up server if needed)");
+        const thinking = appendThinking("Consulting NSE & Groq AI...");
 
         try {
-            // 2. We combine the base URL with the specific /analyze door
-            const response = await fetch(`${RENDER_BASE_URL}/analyze`, {
+            const response = await fetch(RENDER_URL, {
                 method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text })
             });
 
-            // If the server is sleeping, this fetch might take 30-60 seconds
-            if (!response.ok) {
-                if(response.status === 404) throw new Error("Backend path not found. Check if /analyze is in app.py");
-                throw new Error(`Server status: ${response.status}`);
-            }
+            if (!response.ok) throw new Error(`Server Status: ${response.status}`);
             
             const result = await response.json();
             thinking.remove();
@@ -106,42 +184,42 @@
             updateHistory(result.ticker);
 
         } catch (e) {
-            console.error("Fetch Error:", e);
-            thinking.innerHTML = `<span style="color:var(--bear)">Error: ${e.message}. <br><small>Is Render Live? Try again in 30s.</small></span>`;
+            thinking.innerHTML = `<div style="color:var(--bear); font-size:12px;">Error: ${e.message}. (Server might be waking up, try again)</div>`;
         }
     }
 
     function renderCard(data) {
         const msgs = document.getElementById('messages');
         const card = document.createElement('div');
-        card.className = 'msg bot analysis-card';
+        card.className = 'analysis-card';
         
-        let tableRows = data.history.map(y => `
-            <tr>
-                <td><b>${y.year}</b></td>
-                <td>₹${y.high}</td>
-                <td>₹${y.low}</td>
-                <td style="color:${y.change > 0 ? 'var(--bull)' : 'var(--bear)'}">${y.change}%</td>
-            </tr>
-        `).join('');
+        const historyRows = data.history && data.history.length > 0 
+            ? data.history.map(y => `
+                <tr>
+                    <td><b>${y.year}</b></td>
+                    <td>₹${y.high}</td>
+                    <td>₹${y.low}</td>
+                    <td style="color:${y.change > 0 ? 'var(--bull)' : 'var(--bear)'}">${y.change}%</td>
+                </tr>`).join('')
+            : '<tr><td colspan="4" style="text-align:center">Data processing...</td></tr>';
 
         card.innerHTML = `
             <div class="card-header">
                 <div>
                     <div class="ticker-name">${data.ticker}</div>
-                    <div style="font-size:11px; color:var(--text-dim)">NSE INDIA | AI REPORT</div>
+                    <div style="font-size:10px; color:var(--text-dim); letter-spacing:1px;">NSE INDIA | AI INSIGHT</div>
                 </div>
                 <div style="text-align:right">
                     <div class="price-tag">₹${data.currentPrice}</div>
-                    <div style="font-size:11px; color:var(--text-dim)">CMP</div>
+                    <div style="font-size:10px; color:var(--text-dim)">CMP</div>
                 </div>
             </div>
             <div class="verdict-area">
                 <div class="verdict-badge ${data.verdict}">${data.verdict}</div>
-                <div class="analysis-text">${data.reasoning.replace(/\n/g, '<br>')}</div>
+                <div class="analysis-text">${data.reasoning}</div>
                 <table>
-                    <thead><tr><th>YEAR</th><th>HIGH</th><th>LOW</th><th>ANNUAL RETURN</th></tr></thead>
-                    <tbody>${tableRows}</tbody>
+                    <thead><tr><th>YEAR</th><th>HIGH</th><th>LOW</th><th>RETURN</th></tr></thead>
+                    <tbody>${historyRows}</tbody>
                 </table>
             </div>
         `;
@@ -153,10 +231,7 @@
         const msgs = document.getElementById('messages');
         const div = document.createElement('div');
         div.className = `msg ${type}`;
-        if(type === 'user') {
-            div.style.alignSelf = 'flex-end';
-            div.innerHTML = `<div style="background:var(--border); padding:12px 20px; border-radius:12px; max-width:80%;">${text}</div>`;
-        }
+        div.innerText = text;
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
     }
@@ -164,8 +239,10 @@
     function appendThinking(txt) {
         const msgs = document.getElementById('messages');
         const div = document.createElement('div');
-        div.className = 'msg bot';
-        div.innerHTML = `<div style="font-family:'JetBrains Mono'; font-size:12px; color:var(--accent)">[SYSTEM]: ${txt}</div>`;
+        div.style.color = "var(--accent)";
+        div.style.fontSize = "12px";
+        div.style.fontFamily = "JetBrains Mono";
+        div.innerText = `> ${txt}`;
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
         return div;
@@ -182,7 +259,7 @@
 
     document.getElementById('userInput').addEventListener('keypress', (e) => { 
         if(e.key === 'Enter' && !e.shiftKey) { 
-            e.preventDefault();
+            e.preventDefault(); 
             handleSend(); 
         } 
     });
