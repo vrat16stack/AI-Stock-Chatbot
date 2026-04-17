@@ -3,153 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio AI — Market Analyst</title>
+    <title>Portfolio AI — Premium Stock Analyst</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg: #05070a;
+            --card-bg: rgba(17, 25, 40, 0.75);
             --accent: #00f2ff;
-            --bull: #3fb950;
-            --bear: #f85149;
-            --text-main: #ffffff;
-            --text-secondary: #94a3b8;
-            --border: #1e293b;
+            --bull: #00ffbd;
+            --bear: #ff4d6d;
+            --text: #ffffff;
+            --text-dim: #94a3b8;
+            --border: rgba(255, 255, 255, 0.1);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body { 
-            background-color: var(--bg);
-            color: var(--text-main); 
+            background-color: var(--bg); 
+            background-image: radial-gradient(circle at 50% 0%, #1a2333 0%, #05070a 100%);
+            color: var(--text); 
             font-family: 'Inter', sans-serif; 
             height: 100vh; 
             display: flex; 
             overflow: hidden;
         }
 
-        /* Sidebar - Simple & Dark */
+        /* Sidebar */
         .sidebar {
-            width: 240px; 
-            background: #000000;
+            width: 260px; 
+            background: rgba(0, 0, 0, 0.3);
             border-right: 1px solid var(--border);
             display: flex; 
             flex-direction: column;
-            z-index: 10;
         }
-        .sidebar-header { padding: 30px 20px; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 12px; }
+        .sidebar-header { padding: 25px; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 14px; }
         .history-item { 
-            padding: 15px 20px; cursor: pointer; border-bottom: 1px solid #0f172a;
-            transition: 0.3s; font-size: 13px; color: var(--text-secondary);
+            padding: 12px 25px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03);
+            transition: 0.3s; font-size: 13px; color: var(--text-dim);
         }
-        .history-item:hover { color: var(--accent); background: #0f172a; }
+        .history-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
 
-        /* Main Stream Area */
-        .chat-container { flex: 1; display: flex; flex-direction: column; background: var(--bg); position: relative; }
+        /* Main Chat Area */
+        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; }
         .messages { 
             flex: 1; 
             overflow-y: auto; 
-            padding: 40px 10%; /* More breathing room */
+            padding: 30px; 
             display: flex; 
             flex-direction: column; 
-            gap: 40px; 
+            gap: 20px; 
         }
 
-        /* User Message - Clean text on the right */
-        .msg.user {
-            align-self: flex-end;
-            color: var(--accent);
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            text-align: right;
-            max-width: 80%;
-            border-right: 2px solid var(--accent);
-            padding-right: 15px;
+        /* Analysis Card - Restored exactly to Morning UI */
+        .analysis-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: slideUp 0.4s ease-out;
+            margin-bottom: 10px;
         }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Bot Analysis - Full Width Stream */
-        .analysis-stream {
-            align-self: flex-start;
-            width: 100%;
-            animation: fadeIn 0.5s ease-in;
-            border-left: 1px solid var(--border);
-            padding-left: 20px;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        .ticker-row { 
+        .card-header { 
+            padding: 20px; 
+            background: rgba(255,255,255,0.03); 
             display: flex; 
             justify-content: space-between; 
-            align-items: flex-end; 
-            margin-bottom: 20px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 10px;
+            align-items: center;
         }
-        .ticker-name { font-size: 32px; font-weight: 800; font-family: 'JetBrains Mono'; color: #ffffff; }
-        .price-val { font-size: 24px; font-weight: 700; color: var(--bull); }
+        .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: white; }
+        .price-tag { font-size: 20px; font-weight: 700; color: var(--accent); }
 
-        .verdict-tag { 
-            display: inline-block; padding: 4px 12px; border-radius: 4px; 
-            font-weight: 800; font-size: 11px; margin-bottom: 15px;
+        .verdict-area { padding: 20px; border-top: 1px solid var(--border); }
+        .verdict-badge { 
+            display: inline-block; padding: 6px 16px; border-radius: 20px; 
+            font-weight: 800; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;
         }
-        .BUY { background: #3fb95033; color: var(--bull); }
-        .WAIT { background: #ffbc0033; color: #ffbc00; }
-        .HOLD { background: #00f2ff33; color: var(--accent); }
+        .BUY { background: rgba(0, 255, 189, 0.15); color: var(--bull); border: 1px solid var(--bull); }
+        .WAIT { background: rgba(255, 188, 0, 0.15); color: #ffbc00; border: 1px solid #ffbc00; }
+        .HOLD { background: rgba(0, 242, 255, 0.15); color: var(--accent); border: 1px solid var(--accent); }
 
-        /* THE FIX: Explicit white text, no boxes to clip it */
-        .reasoning-text { 
-            line-height: 1.8; 
-            color: #f0f6fc !important; 
-            font-size: 16px; 
-            margin-bottom: 30px;
+        /* The Analysis Text - Solid White for visibility */
+        .analysis-text { 
+            line-height: 1.7; 
+            color: #ffffff !important; 
+            font-size: 14px; 
+            font-weight: 400;
             white-space: pre-wrap;
             display: block;
         }
 
-        /* Table - Sleek & Full Width */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .data-table th { text-align: left; color: var(--text-secondary); padding: 12px; border-bottom: 1px solid var(--border); font-size: 11px; text-transform: uppercase; }
-        .data-table td { padding: 15px 12px; border-bottom: 1px solid #0f172a; font-size: 14px; color: #f0f6fc; }
-
-        /* Input Area - Fixed at bottom */
+        /* Input Area */
         .input-wrapper { 
-            padding: 30px 10%; 
+            padding: 30px; 
+            background: transparent; 
             display: flex; 
-            gap: 20px; 
-            background: #000000;
-            border-top: 1px solid var(--border);
+            gap: 15px; 
+            align-items: center;
         }
         #userInput {
-            flex: 1; background: transparent; border: none;
-            color: white; outline: none; font-size: 16px;
-            font-family: inherit; resize: none;
+            flex: 1; 
+            background: var(--card-bg); 
+            border: 1px solid var(--border);
+            border-radius: 12px; 
+            padding: 15px; 
+            color: white; 
+            outline: none;
+            font-family: inherit; 
+            resize: none;
         }
         .send-btn {
-            background: transparent; color: var(--accent); border: 1px solid var(--accent);
-            padding: 10px 25px; border-radius: 4px; font-weight: 700;
-            cursor: pointer; transition: 0.3s; font-family: 'JetBrains Mono';
+            background: var(--accent); 
+            color: #000; 
+            border: none;
+            padding: 15px 25px; 
+            border-radius: 12px; 
+            font-weight: 700;
+            cursor: pointer; 
+            transition: 0.3s;
         }
-        .send-btn:hover { background: var(--accent); color: black; }
+        .send-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
     </style>
 </head>
 <body>
 
 <div class="sidebar">
-    <div class="sidebar-header">STOCKS.EXE</div>
+    <div class="sidebar-header">PORTFOLIO AI</div>
     <div id="sidebarList"></div>
 </div>
 
 <div class="chat-container">
     <div class="messages" id="messages">
-        <div id="welcome" style="margin-top: 10vh; color: var(--text-secondary);">
-            <h1 style="color: white; font-size: 40px; margin-bottom: 10px;">Market Intelligence</h1>
-            <p>> System ready. Enter ticker or query to begin analysis.</p>
+        <div id="welcome" style="margin: auto; text-align: center; max-width: 400px;">
+            <h1 style="font-size: 32px; margin-bottom: 10px;">Market Intelligence</h1>
+            <p style="color: var(--text-dim);">Analyze any NSE stock with live technicals and AI-driven insights.</p>
         </div>
     </div>
 
     <div class="input-wrapper">
-        <textarea id="userInput" rows="1" placeholder="Search NSE..."></textarea>
-        <button class="send-btn" onclick="handleSend()">RUN ANALYSIS</button>
+        <textarea id="userInput" rows="1" placeholder="Search stock (e.g. 'Analyze Reliance')"></textarea>
+        <button class="send-btn" onclick="handleSend()">ANALYZE</button>
     </div>
 </div>
 
@@ -164,8 +160,8 @@
         if(document.getElementById('welcome')) document.getElementById('welcome').remove();
 
         input.value = '';
-        appendUserMsg(text);
-        const thinking = appendThinking("INITIALIZING API FETCH...");
+        appendMsg('user', text);
+        const thinking = appendThinking("Crunching market data...");
 
         try {
             const response = await fetch(RENDER_URL, {
@@ -174,53 +170,53 @@
                 body: JSON.stringify({ message: text })
             });
 
+            if (!response.ok) throw new Error(`Server Status: ${response.status}`);
+            
             const result = await response.json();
             thinking.remove();
 
             if (result.error) throw new Error(result.error);
 
-            renderAnalysis(result);
+            renderCard(result);
             updateHistory(result.ticker);
 
         } catch (e) {
-            thinking.innerHTML = `<div style="color:var(--bear); font-size:12px;">[ERROR]: ${e.message}</div>`;
+            thinking.innerHTML = `<span style="color:var(--bear)">Error: ${e.message}</span>`;
         }
     }
 
-    function renderAnalysis(data) {
+    function renderCard(data) {
         const msgs = document.getElementById('messages');
-        const div = document.createElement('div');
-        div.className = 'analysis-stream';
-        
-        const historyRows = (data.history || []).map(y => `
-            <tr>
-                <td>${y.year}</td>
-                <td>₹${y.high}</td>
-                <td>₹${y.low}</td>
-                <td style="color:${y.change > 0 ? 'var(--bull)' : 'var(--bear)'}">${y.change}%</td>
-            </tr>`).join('');
+        const card = document.createElement('div');
+        card.className = 'analysis-card';
 
-        div.innerHTML = `
-            <div class="ticker-row">
-                <span class="ticker-name">${data.ticker}</span>
-                <span class="price-val">₹${data.currentPrice}</span>
+        card.innerHTML = `
+            <div class="card-header">
+                <div>
+                    <div class="ticker-name">${data.ticker}</div>
+                    <div style="font-size:11px; color:var(--text-dim)">NSE INDIA | LIVE REPORT</div>
+                </div>
+                <div style="text-align:right">
+                    <div class="price-tag">₹${data.currentPrice}</div>
+                    <div style="font-size:11px; color:var(--text-dim)">CMP</div>
+                </div>
             </div>
-            <div class="verdict-tag ${data.verdict}">${data.verdict}</div>
-            <div class="reasoning-text">${data.reasoning}</div>
-            <table class="data-table">
-                <thead><tr><th>Year</th><th>High</th><th>Low</th><th>Return</th></tr></thead>
-                <tbody>${historyRows}</tbody>
-            </table>
+            <div class="verdict-area">
+                <div class="verdict-badge ${data.verdict}">${data.verdict}</div>
+                <div class="analysis-text">${data.reasoning}</div>
+            </div>
         `;
-        msgs.appendChild(div);
+        msgs.appendChild(card);
         msgs.scrollTop = msgs.scrollHeight;
     }
 
-    function appendUserMsg(text) {
+    function appendMsg(type, text) {
         const msgs = document.getElementById('messages');
         const div = document.createElement('div');
-        div.className = 'msg user';
-        div.innerText = `> ${text}`;
+        if(type === 'user') {
+            div.style.alignSelf = 'flex-end';
+            div.innerHTML = `<div style="background:rgba(255,255,255,0.1); padding:10px 18px; border-radius:12px; font-size:14px; margin-bottom:10px;">${text}</div>`;
+        }
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
     }
@@ -228,10 +224,10 @@
     function appendThinking(txt) {
         const msgs = document.getElementById('messages');
         const div = document.createElement('div');
-        div.style.color = "var(--text-secondary)";
         div.style.fontSize = "12px";
+        div.style.color = "var(--accent)";
         div.style.fontFamily = "JetBrains Mono";
-        div.innerText = `[SYSTEM]: ${txt}`;
+        div.innerText = `> ${txt}`;
         msgs.appendChild(div);
         msgs.scrollTop = msgs.scrollHeight;
         return div;
