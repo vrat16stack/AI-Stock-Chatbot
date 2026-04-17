@@ -2,252 +2,112 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portfolio AI — Premium Stock Analyst</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <title>Portfolio AI — Premium Analyst</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #05070a;
-            --card-bg: rgba(17, 25, 40, 0.75);
-            --accent: #00f2ff;
-            --bull: #00ffbd;
-            --bear: #ff4d6d;
-            --text: #ffffff;
-            --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.1);
-        }
-
+        :root { --bg: #05070a; --accent: #00f2ff; --bull: #00ffbd; --bear: #ff4d6d; --border: rgba(255, 255, 255, 0.1); }
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; font-family: 'Inter', sans-serif; height: 100vh; display: flex; overflow: hidden; }
         
-        body { 
-            background-color: var(--bg); 
-            background-image: radial-gradient(circle at 50% 0%, #1a2333 0%, #05070a 100%);
-            color: var(--text); 
-            font-family: 'Inter', sans-serif; 
-            height: 100vh; 
-            display: flex; 
-            overflow: hidden;
-        }
+        .sidebar { width: 260px; background: rgba(0, 0, 0, 0.5); border-right: 1px solid var(--border); }
+        .sidebar-header { padding: 25px; font-weight: 700; color: var(--accent); font-size: 14px; letter-spacing: 2px; }
 
-        /* Sidebar */
-        .sidebar {
-            width: 260px; 
-            background: rgba(0, 0, 0, 0.3);
-            border-right: 1px solid var(--border);
-            display: flex; 
-            flex-direction: column;
-        }
-        .sidebar-header { padding: 25px; font-weight: 700; letter-spacing: 2px; color: var(--accent); font-size: 14px; }
-        .history-item { 
-            padding: 12px 25px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.03);
-            transition: 0.3s; font-size: 13px; color: var(--text-dim);
-        }
-        .history-item:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+        .chat-container { flex: 1; display: flex; flex-direction: column; }
+        .messages { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; }
 
-        /* Main Chat Area */
-        .chat-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-        .messages { 
-            flex: 1; 
-            overflow-y: auto; 
-            padding: 30px; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 20px; 
-        }
-
-        /* Analysis Card - Restored exactly to Morning UI */
+        /* THE FIX: Explicitly stacking layers */
         .analysis-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
+            background: rgba(17, 25, 40, 0.95); /* Slightly more solid for better text contrast */
             border: 1px solid var(--border);
             border-radius: 16px;
             overflow: hidden;
             animation: slideUp 0.4s ease-out;
-            margin-bottom: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .card-header { 
-            padding: 20px; 
-            background: rgba(255,255,255,0.03); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
+            padding: 20px; background: rgba(255,255,255,0.03); 
+            display: flex; justify-content: space-between; border-bottom: 1px solid var(--border);
         }
         .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: white; }
         .price-tag { font-size: 20px; font-weight: 700; color: var(--accent); }
 
-        .verdict-area { padding: 20px; border-top: 1px solid var(--border); }
-        .verdict-badge { 
-            display: inline-block; padding: 6px 16px; border-radius: 20px; 
-            font-weight: 800; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;
+        .verdict-area { 
+            padding: 25px; 
+            background: #0f172a; /* SOLID LAYER: This stops the "ghosting" or "overlapping" */
+            min-height: 100px;
         }
-        .BUY { background: rgba(0, 255, 189, 0.15); color: var(--bull); border: 1px solid var(--bull); }
-        .WAIT { background: rgba(255, 188, 0, 0.15); color: #ffbc00; border: 1px solid #ffbc00; }
-        .HOLD { background: rgba(0, 242, 255, 0.15); color: var(--accent); border: 1px solid var(--accent); }
+        .verdict-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-weight: 800; font-size: 12px; margin-bottom: 15px; }
+        .BUY { color: var(--bull); border: 1px solid var(--bull); background: rgba(0,255,189,0.1); }
+        .WAIT { color: #ffbc00; border: 1px solid #ffbc00; background: rgba(255,188,0,0.1); }
+        .HOLD { color: var(--accent); border: 1px solid var(--accent); background: rgba(0,242,255,0.1); }
 
-        /* The Analysis Text - Solid White for visibility */
+        /* ENSURING TEXT IS ON TOP */
         .analysis-text { 
-            line-height: 1.7; 
             color: #ffffff !important; 
-            font-size: 14px; 
-            font-weight: 400;
+            line-height: 1.8; 
+            font-size: 15px; 
             white-space: pre-wrap;
-            display: block;
+            display: block !important;
+            opacity: 1 !important;
+            position: relative;
+            z-index: 10; /* Forces text to the very front layer */
         }
 
-        /* Input Area */
-        .input-wrapper { 
-            padding: 30px; 
-            background: transparent; 
-            display: flex; 
-            gap: 15px; 
-            align-items: center;
-        }
-        #userInput {
-            flex: 1; 
-            background: var(--card-bg); 
-            border: 1px solid var(--border);
-            border-radius: 12px; 
-            padding: 15px; 
-            color: white; 
-            outline: none;
-            font-family: inherit; 
-            resize: none;
-        }
-        .send-btn {
-            background: var(--accent); 
-            color: #000; 
-            border: none;
-            padding: 15px 25px; 
-            border-radius: 12px; 
-            font-weight: 700;
-            cursor: pointer; 
-            transition: 0.3s;
-        }
-        .send-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+        .input-wrapper { padding: 30px; display: flex; gap: 15px; }
+        #userInput { flex: 1; background: rgba(17, 25, 40, 0.8); border: 1px solid var(--border); border-radius: 12px; padding: 15px; color: white; outline: none; resize: none; }
+        .send-btn { background: var(--accent); color: #000; border: none; padding: 15px 25px; border-radius: 12px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="sidebar-header">PORTFOLIO AI</div>
-    <div id="sidebarList"></div>
-</div>
-
-<div class="chat-container">
-    <div class="messages" id="messages">
-        <div id="welcome" style="margin: auto; text-align: center; max-width: 400px;">
-            <h1 style="font-size: 32px; margin-bottom: 10px;">Market Intelligence</h1>
-            <p style="color: var(--text-dim);">Analyze any NSE stock with live technicals and AI-driven insights.</p>
+    <div class="sidebar"><div class="sidebar-header">PORTFOLIO AI</div></div>
+    <div class="chat-container">
+        <div class="messages" id="msgs"></div>
+        <div class="input-wrapper">
+            <textarea id="userInput" rows="1" placeholder="Ask about any stock..."></textarea>
+            <button class="send-btn" onclick="handleSend()">ANALYZE</button>
         </div>
     </div>
-
-    <div class="input-wrapper">
-        <textarea id="userInput" rows="1" placeholder="Search stock (e.g. 'Analyze Reliance')"></textarea>
-        <button class="send-btn" onclick="handleSend()">ANALYZE</button>
-    </div>
-</div>
-
-<script>
-    const RENDER_URL = "https://ai-stock-chatbot.onrender.com/analyze";
-
-    async function handleSend() {
-        const input = document.getElementById('userInput');
-        const text = input.value.trim();
-        if (!text) return;
-
-        if(document.getElementById('welcome')) document.getElementById('welcome').remove();
-
-        input.value = '';
-        appendMsg('user', text);
-        const thinking = appendThinking("Crunching market data...");
-
-        try {
-            const response = await fetch(RENDER_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: text })
-            });
-
-            if (!response.ok) throw new Error(`Server Status: ${response.status}`);
-            
-            const result = await response.json();
-            thinking.remove();
-
-            if (result.error) throw new Error(result.error);
-
-            renderCard(result);
-            updateHistory(result.ticker);
-
-        } catch (e) {
-            thinking.innerHTML = `<span style="color:var(--bear)">Error: ${e.message}</span>`;
+    <script>
+        const URL = "https://ai-stock-chatbot.onrender.com/analyze";
+        async function handleSend() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = '';
+            appendMsg('user', text);
+            const thinking = appendMsg('bot', 'Analyzing market data...');
+            try {
+                const r = await fetch(URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text }) });
+                const res = await r.json();
+                thinking.remove();
+                renderCard(res);
+            } catch (e) { thinking.innerText = "Connection Error. Try again."; }
         }
-    }
-
-    function renderCard(data) {
-        const msgs = document.getElementById('messages');
-        const card = document.createElement('div');
-        card.className = 'analysis-card';
-
-        card.innerHTML = `
-            <div class="card-header">
-                <div>
-                    <div class="ticker-name">${data.ticker}</div>
-                    <div style="font-size:11px; color:var(--text-dim)">NSE INDIA | LIVE REPORT</div>
+        function renderCard(data) {
+            const div = document.createElement('div');
+            div.className = 'analysis-card';
+            div.innerHTML = `
+                <div class="card-header">
+                    <div><div class="ticker-name">${data.ticker}</div><div style="font-size:10px; color:#94a3b8">NSE INDIA</div></div>
+                    <div style="text-align:right"><div class="price-tag">₹${data.currentPrice}</div><div style="font-size:10px; color:#94a3b8">CMP</div></div>
                 </div>
-                <div style="text-align:right">
-                    <div class="price-tag">₹${data.currentPrice}</div>
-                    <div style="font-size:11px; color:var(--text-dim)">CMP</div>
-                </div>
-            </div>
-            <div class="verdict-area">
-                <div class="verdict-badge ${data.verdict}">${data.verdict}</div>
-                <div class="analysis-text">${data.reasoning}</div>
-            </div>
-        `;
-        msgs.appendChild(card);
-        msgs.scrollTop = msgs.scrollHeight;
-    }
-
-    function appendMsg(type, text) {
-        const msgs = document.getElementById('messages');
-        const div = document.createElement('div');
-        if(type === 'user') {
-            div.style.alignSelf = 'flex-end';
-            div.innerHTML = `<div style="background:rgba(255,255,255,0.1); padding:10px 18px; border-radius:12px; font-size:14px; margin-bottom:10px;">${text}</div>`;
+                <div class="verdict-area">
+                    <div class="verdict-badge ${data.verdict}">${data.verdict}</div>
+                    <div class="analysis-text">${data.reasoning}</div>
+                </div>`;
+            document.getElementById('msgs').appendChild(div);
+            document.getElementById('msgs').scrollTop = document.getElementById('msgs').scrollHeight;
         }
-        msgs.appendChild(div);
-        msgs.scrollTop = msgs.scrollHeight;
-    }
-
-    function appendThinking(txt) {
-        const msgs = document.getElementById('messages');
-        const div = document.createElement('div');
-        div.style.fontSize = "12px";
-        div.style.color = "var(--accent)";
-        div.style.fontFamily = "JetBrains Mono";
-        div.innerText = `> ${txt}`;
-        msgs.appendChild(div);
-        msgs.scrollTop = msgs.scrollHeight;
-        return div;
-    }
-
-    function updateHistory(ticker) {
-        const list = document.getElementById('sidebarList');
-        if ([...list.children].some(el => el.innerText === ticker)) return;
-        const item = document.createElement('div');
-        item.className = 'history-item';
-        item.innerText = ticker;
-        list.prepend(item);
-    }
-
-    document.getElementById('userInput').addEventListener('keypress', (e) => { 
-        if(e.key === 'Enter' && !e.shiftKey) { 
-            e.preventDefault(); 
-            handleSend(); 
-        } 
-    });
-</script>
+        function appendMsg(t, txt) {
+            const div = document.createElement('div');
+            if(t==='user') { div.style.alignSelf='flex-end'; div.innerHTML=`<div style="background:rgba(255,255,255,0.1); padding:10px 15px; border-radius:12px; margin-bottom:10px; font-size:14px;">${txt}</div>`; }
+            else { div.style.color='var(--accent)'; div.style.fontSize='12px'; div.innerText='> '+txt; }
+            document.getElementById('msgs').appendChild(div);
+            return div;
+        }
+        document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
+    </script>
 </body>
 </html>
