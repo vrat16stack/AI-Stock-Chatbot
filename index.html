@@ -8,13 +8,14 @@
     <style>
         :root {
             --bg: #05070a;
-            --card-bg: #111827; /* Solid background for visibility */
+            --card-bg: #161b22; /* Solid GitHub-dark blue */
+            --header-bg: #21262d;
             --accent: #00f2ff;
-            --bull: #00ffbd;
-            --bear: #ff4d6d;
+            --bull: #3fb950;
+            --bear: #f85149;
             --text: #ffffff;
-            --text-dim: #94a3b8;
-            --border: rgba(255, 255, 255, 0.15);
+            --text-dim: #8b949e;
+            --border: #30363d;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -32,7 +33,7 @@
         /* Sidebar */
         .sidebar {
             width: 260px; 
-            background: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.8);
             border-right: 1px solid var(--border);
             display: flex; 
             flex-direction: column;
@@ -44,7 +45,7 @@
         }
 
         /* Main Chat Area */
-        .chat-container { flex: 1; display: flex; flex-direction: column; }
+        .chat-container { flex: 1; display: flex; flex-direction: column; background: transparent; }
         .messages { 
             flex: 1; 
             overflow-y: auto; 
@@ -58,56 +59,63 @@
         .msg.user {
             align-self: flex-end;
             background: #1e293b;
+            color: white !important;
             padding: 12px 20px;
             border-radius: 16px 16px 0 16px;
             max-width: 80%;
             border: 1px solid var(--border);
+            font-size: 14px;
         }
 
         /* Analysis Card (The Bot Response) */
         .analysis-card {
-            background: var(--card-bg);
+            background: var(--card-bg) !important;
             border: 1px solid var(--accent);
-            border-radius: 16px;
+            border-radius: 12px;
             width: 100%;
-            max-width: 700px;
+            max-width: 750px;
             overflow: hidden;
             animation: slideUp 0.4s ease-out;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
         }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
         .card-header { 
             padding: 20px; 
-            background: rgba(255,255,255,0.05); 
+            background: var(--header-bg); 
+            border-bottom: 1px solid var(--border);
             display: flex; 
             justify-content: space-between; 
             align-items: center;
         }
-        .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: white; }
-        .price-tag { font-size: 20px; font-weight: 700; color: var(--accent); }
+        .ticker-name { font-size: 24px; font-weight: 800; font-family: 'JetBrains Mono'; color: #58a6ff !important; }
+        .price-tag { font-size: 20px; font-weight: 700; color: var(--bull) !important; }
 
-        .verdict-area { padding: 20px; }
+        .verdict-area { padding: 20px; background: var(--card-bg); }
         .verdict-badge { 
             display: inline-block; padding: 6px 16px; border-radius: 20px; 
             font-weight: 800; font-size: 12px; margin-bottom: 15px; text-transform: uppercase;
         }
-        .BUY { background: rgba(0, 255, 189, 0.2); color: var(--bull); border: 1px solid var(--bull); }
+        .BUY { background: rgba(63, 185, 80, 0.2); color: var(--bull); border: 1px solid var(--bull); }
         .WAIT { background: rgba(255, 188, 0, 0.2); color: #ffbc00; border: 1px solid #ffbc00; }
         .HOLD { background: rgba(0, 242, 255, 0.2); color: var(--accent); border: 1px solid var(--accent); }
 
         .analysis-text { 
             line-height: 1.8; 
-            color: #e2e8f0; 
+            color: #f0f6fc !important; 
             font-size: 15px; 
             margin-bottom: 20px;
-            white-space: pre-wrap; /* Preserves AI line breaks */
+            white-space: pre-wrap;
+            display: block !important;
         }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; color: white; }
+        .table-container { background: #0d1117; border-radius: 8px; padding: 10px; margin-top: 10px; }
+        table { width: 100%; border-collapse: collapse; color: white; }
         th { text-align: left; color: var(--text-dim); padding: 10px; border-bottom: 1px solid var(--border); font-size: 11px; }
-        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; }
+        td { padding: 12px 10px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; color: #f0f6fc; }
 
         /* Input Area */
         .input-wrapper { 
@@ -158,7 +166,6 @@
         const text = input.value.trim();
         if (!text) return;
 
-        // Hide welcome screen on first message
         const welcome = document.getElementById('welcomeScreen');
         if(welcome) welcome.style.display = 'none';
 
@@ -184,7 +191,7 @@
             updateHistory(result.ticker);
 
         } catch (e) {
-            thinking.innerHTML = `<div style="color:var(--bear); font-size:12px;">Error: ${e.message}. (Server might be waking up, try again)</div>`;
+            thinking.innerHTML = `<div style="color:var(--bear); font-size:12px; font-family: 'JetBrains Mono';">Error: ${e.message}. (Server might be waking up, try again)</div>`;
         }
     }
 
@@ -193,6 +200,9 @@
         const card = document.createElement('div');
         card.className = 'analysis-card';
         
+        // Ensure reasoning exists and isn't a "ghost"
+        const cleanReasoning = data.reasoning ? data.reasoning : "Analysis results pending...";
+
         const historyRows = data.history && data.history.length > 0 
             ? data.history.map(y => `
                 <tr>
@@ -216,11 +226,13 @@
             </div>
             <div class="verdict-area">
                 <div class="verdict-badge ${data.verdict}">${data.verdict}</div>
-                <div class="analysis-text">${data.reasoning}</div>
-                <table>
-                    <thead><tr><th>YEAR</th><th>HIGH</th><th>LOW</th><th>RETURN</th></tr></thead>
-                    <tbody>${historyRows}</tbody>
-                </table>
+                <div class="analysis-text">${cleanReasoning}</div>
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>YEAR</th><th>HIGH</th><th>LOW</th><th>RETURN</th></tr></thead>
+                        <tbody>${historyRows}</tbody>
+                    </table>
+                </div>
             </div>
         `;
         msgs.appendChild(card);
