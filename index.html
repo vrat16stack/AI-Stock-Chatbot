@@ -1,440 +1,220 @@
 <!DOCTYPE html>
-
 <html lang="en">
-
 <head>
-
 <meta charset="UTF-8">
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Portfolio AI — Stock Analyst Chatbot</title>
-
 <link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet">
-
 <style>
-
   :root {
-
     --bg:          #0a0c10;
-
     --bg2:         #111318;
-
     --bg3:         #181c24;
-
     --border:      #1e2330;
-
     --border2:     #252d3d;
-
     --accent:      #00d4aa;
-
     --accent2:     #0099ff;
-
     --accent3:     #ff6b35;
-
     --bull:        #00c896;
-
     --bear:        #ff4560;
-
     --neutral:     #ffc107;
-
     --hold:        #7c83fd;
-
     --text:        #e8eaf0;
-
     --text2:       #8892a4;
-
     --text3:       #4a5568;
-
     --card:        #13171f;
-
     --card2:       #1a1f2e;
-
     --radius:      12px;
-
     --font-mono:   'Space Mono', monospace;
-
     --font-body:   'DM Sans', sans-serif;
-
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body { background: var(--bg); color: var(--text); font-family: var(--font-body); font-size: 14px; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-
   .topbar { display: flex; align-items: center; justify-content: space-between; padding: 0 20px; height: 52px; background: var(--bg2); border-bottom: 1px solid var(--border); flex-shrink: 0; }
-
   .logo-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; box-shadow: 0 0 8px var(--accent); }
-
   .main { display: flex; flex: 1; overflow: hidden; }
-
   .sidebar { width: 220px; background: var(--bg2); border-right: 1px solid var(--border); display: flex; flex-direction: column; }
-
   .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-
   .messages { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-
   .msg-bubble { padding: 10px 14px; border-radius: var(--radius); line-height: 1.6; max-width: 85%; }
-
   .msg.user { align-self: flex-end; }
-
   .msg.user .msg-bubble { background: var(--bg3); border: 1px solid var(--border2); }
-
   .msg.bot { align-self: flex-start; width: 100%; }
-
   .analysis-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; width: 100%; margin-bottom: 10px; }
-
   .card-header { display: flex; justify-content: space-between; padding: 15px; background: var(--card2); border-bottom: 1px solid var(--border); }
-
   .verdict-box { padding: 15px; display: flex; flex-direction: column; gap: 5px; }
-
   .verdict-decision { font-family: var(--font-mono); font-size: 24px; font-weight: 700; }
-
   .BUY { color: var(--bull); } .HOLD { color: var(--hold); } .WAIT { color: var(--accent3); }
-
   .input-area { padding: 15px; background: var(--bg2); border-top: 1px solid var(--border); }
-
   .input-row { display: flex; gap: 10px; }
-
   #userInput { flex: 1; background: var(--bg3); border: 1px solid var(--border2); border-radius: 10px; padding: 10px; color: white; resize: none; font-family: var(--font-body); }
-
   .send-btn { background: var(--accent); border: none; padding: 10px 20px; border-radius: 10px; font-weight: 700; cursor: pointer; }
-
   .chat-text { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; font-size: 13px; line-height: 1.7; color: var(--text); max-width: 85%; }
-
   .thinking { display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; color: var(--text3); padding: 10px; }
-
 </style>
-
 </head>
-
 <body>
 
-
-
 <div class="topbar">
-
   <div style="display:flex; align-items:center; gap:10px;">
-
     <div class="logo-dot"></div>
-
     <div style="font-family:var(--font-mono); font-weight:700;">PORTFOLIO AI</div>
-
   </div>
-
   <button onclick="location.reload()" style="background:transparent; color:var(--text2); border:1px solid var(--border); padding:5px 10px; border-radius:5px; cursor:pointer;">Clear Chat</button>
-
 </div>
-
-
 
 <div class="main">
-
   <div class="sidebar">
-
     <div style="padding:15px; font-size:10px; color:var(--text3); letter-spacing: 1px;">SESSION HISTORY</div>
-
     <div id="sidebarList" style="padding:10px;"></div>
-
   </div>
-
-
 
   <div class="chat-area">
-
     <div class="messages" id="messages">
-
         <div style="text-align:center; padding:40px; color:var(--text3);">
-
             <div style="font-size: 40px; margin-bottom: 10px;">📊</div>
-
             <h2>Stock Analysis Chatbot</h2>
-
             <p>Poochho: "Reliance kaisa hai?" ya "Should I invest in HDFC BANK?"</p>
-
         </div>
-
     </div>
-
     <div class="input-area">
-
       <div class="input-row">
-
         <textarea id="userInput" rows="1" placeholder="Type a message..."></textarea>
-
         <button class="send-btn" id="sendBtn" onclick="handleSend()">SEND</button>
-
       </div>
-
     </div>
-
   </div>
-
 </div>
 
-
-
 <script>
-
 // CONFIG
-
 const GROQ_API_KEY = 'YOUR_GROQ_API_KEY'; // <--- REPLACE THIS
-
 const GROQ_MODEL   = 'llama-3.3-70b-versatile';
 
-
-
 // 1. DATA FETCHING
-
 async function fetchStockData(ticker) {
-
   const url = `http://127.0.0.1:5000/get_stock_data?ticker=${encodeURIComponent(ticker)}`;
-
   const resp = await fetch(url);
-
   const data = await resp.json();
-
   if (data?.chart?.result?.[0]) return data.chart.result[0];
-
   throw new Error('Data not found');
-
 }
-
-
 
 async function fetchFundamentals(ticker) {
-
   const url = `http://127.0.0.1:5000/get_fundamentals?ticker=${encodeURIComponent(ticker)}`;
-
   try {
-
     const resp = await fetch(url);
-
     const data = await resp.json();
-
     return data?.quoteSummary?.result?.[0] || {};
-
   } catch(e) { return {}; }
-
 }
-
-
 
 async function callGroq(messages) {
-
   try {
-
     const resp = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-
         method: 'POST',
-
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-
         body: JSON.stringify({ model: GROQ_MODEL, messages, temperature: 0.2 })
-
     });
-
     const data = await resp.json();
-
     return data.choices[0].message.content;
-
   } catch(e) { return "AI error. Check Groq Key."; }
-
 }
-
-
 
 // 2. TICKER EXTRACTION LOGIC
-
 function extractTicker(text) {
-
   const stopwords = ["SHOULD", "I", "INVEST", "IN", "BUY", "SELL", "KAREN", "KYA", "BATAO", "ABOUT", "WHAT", "IS", "THE", "PRICE", "OF", "THAN", "FOR"];
-
   let words = text.toUpperCase().replace(/[?.,!]/g, '').split(/\s+/);
-
   
-
   // Return first word that isn't a stopword and is likely a ticker
-
   return words.find(w => !stopwords.includes(w) && w.length > 1) || null;
-
 }
-
-
 
 function runAnalysis(chart) {
-
     const quotes = chart.indicators.quote[0];
-
     const closes = quotes.close.filter(v => v != null);
-
     const current = closes[closes.length - 1];
-
     const ema50 = (closes.slice(-50).reduce((a,b)=>a+b,0)/50) || current;
-
     return { current, ema50 };
-
 }
-
-
 
 // 3. MAIN MESSAGE HANDLER
-
 async function handleSend() {
-
   const input = document.getElementById('userInput');
-
   const text = input.value.trim();
-
   if (!text) return;
-
   input.value = '';
 
-
-
   appendMsg('user', text);
-
   const thinking = appendThinking("Analyzing...");
 
-
-
   const ticker = extractTicker(text);
-
   
-
   try {
-
     // Attempt Stock Analysis
-
     const chart = await fetchStockData(ticker);
-
     const tech = runAnalysis(chart);
-
     
-
     thinking.innerHTML = "Fetching AI verdict...";
-
     const prompt = `User asks: "${text}". Stock: ${ticker}. Price: ₹${tech.current.toFixed(2)}. EMA50: ₹${tech.ema50.toFixed(2)}. Give a detailed analysis in Hinglish/English as per user's tone. VERDICT: [BUY/HOLD/WAIT]`;
-
     
-
     const aiResp = await callGroq([{role:'system', content:'You are an expert Indian Stock Analyst.'}, {role:'user', content:prompt}]);
-
     
-
     thinking.remove();
-
     const verdict = aiResp.includes('BUY') ? 'BUY' : aiResp.includes('WAIT') ? 'WAIT' : 'HOLD';
-
     
-
     const cardHtml = `
-
       <div class="analysis-card">
-
         <div class="card-header">
-
           <div><b style="font-size:18px; color:var(--accent);">${ticker}</b></div>
-
           <div style="text-align:right;"><b>₹${tech.current.toFixed(2)}</b></div>
-
         </div>
-
         <div class="verdict-box">
-
           <div class="verdict-decision ${verdict}">${verdict}</div>
-
           <div style="font-size:13px; color:var(--text2); line-height:1.5;">${aiResp.replace(/\n/g, '<br>')}</div>
-
         </div>
-
       </div>`;
-
     
-
     appendMsg('bot-card', cardHtml);
 
-
-
   } catch(e) {
-
     // If stock fetching fails, answer as a general Chatbot
-
     thinking.innerHTML = "Thinking...";
-
     const genResp = await callGroq([
-
         {role:'system', content:'You are a helpful stock market assistant. If you cannot find data for a specific stock, explain why or answer the general query.'},
-
         {role:'user', content:text}
-
     ]);
-
     thinking.remove();
-
     appendMsg('bot-text', genResp);
-
   }
-
 }
-
-
 
 // 4. UI HELPERS
-
 function appendMsg(type, content) {
-
   const msgs = document.getElementById('messages');
-
   const div = document.createElement('div');
-
   div.className = `msg ${type.includes('user') ? 'user' : 'bot'}`;
-
   
-
   if (type === 'bot-card') div.innerHTML = content;
-
   else if (type === 'bot-text') div.innerHTML = `<div class="chat-text">${content.replace(/\n/g,'<br>')}</div>`;
-
   else div.innerHTML = `<div class="msg-bubble">${content}</div>`;
-
   
-
   msgs.appendChild(div);
-
   msgs.scrollTop = msgs.scrollHeight;
-
   return div;
-
 }
-
-
 
 function appendThinking(txt) {
-
   const msgs = document.getElementById('messages');
-
   const div = document.createElement('div');
-
   div.className = 'msg bot';
-
   div.innerHTML = `<div class="thinking">${txt}</div>`;
-
   msgs.appendChild(div);
-
   msgs.scrollTop = msgs.scrollHeight;
-
   return div.querySelector('.thinking');
-
 }
 
-
-
 document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); } });
-
 </script>
-
 </body>
-
 </html>
-
