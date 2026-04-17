@@ -66,8 +66,8 @@
 </div>
 
 <script>
-    // REPLACED WITH YOUR RENDER URL
-    const BACKEND_URL = "https://ai-stock-chatbot.onrender.com/analyze";
+    // 1. Base URL only (No trailing slash, no /analyze here)
+    const RENDER_BASE_URL = "https://ai-stock-chatbot.onrender.com";
 
     async function handleSend() {
         const input = document.getElementById('userInput');
@@ -76,16 +76,26 @@
         input.value = '';
 
         appendMsg('user', text);
-        const thinking = appendThinking("Consulting NSE Data & AI...");
+        
+        // Let the user know the first request might take time (Render Free Tier sleep)
+        const thinking = appendThinking("Consulting NSE Data & AI... (Waking up server if needed)");
 
         try {
-            const response = await fetch(BACKEND_URL, {
+            // 2. We combine the base URL with the specific /analyze door
+            const response = await fetch(`${RENDER_BASE_URL}/analyze`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
                 body: JSON.stringify({ message: text })
             });
 
-            if (!response.ok) throw new Error(`Server status: ${response.status}`);
+            // If the server is sleeping, this fetch might take 30-60 seconds
+            if (!response.ok) {
+                if(response.status === 404) throw new Error("Backend path not found. Check if /analyze is in app.py");
+                throw new Error(`Server status: ${response.status}`);
+            }
             
             const result = await response.json();
             thinking.remove();
@@ -96,7 +106,8 @@
             updateHistory(result.ticker);
 
         } catch (e) {
-            thinking.innerHTML = `<span style="color:var(--bear)">Error: ${e.message}. (Check if Render is awake)</span>`;
+            console.error("Fetch Error:", e);
+            thinking.innerHTML = `<span style="color:var(--bear)">Error: ${e.message}. <br><small>Is Render Live? Try again in 30s.</small></span>`;
         }
     }
 
@@ -169,7 +180,12 @@
         list.prepend(item);
     }
 
-    document.getElementById('userInput').addEventListener('keypress', (e) => { if(e.key === 'Enter') handleSend(); });
+    document.getElementById('userInput').addEventListener('keypress', (e) => { 
+        if(e.key === 'Enter' && !e.shiftKey) { 
+            e.preventDefault();
+            handleSend(); 
+        } 
+    });
 </script>
 </body>
 </html>
