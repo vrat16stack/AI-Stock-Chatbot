@@ -1,0 +1,31 @@
+# ─────────────────────────────────────────────
+# Stock AI Chatbot — Backend Dependencies
+# Python 3.12 | Install: pip install -r requirements.txt
+# ─────────────────────────────────────────────
+
+# ── Data fetching ──────────────────────────────
+yfinance==0.2.54
+requests==2.32.3
+feedparser==6.0.11
+beautifulsoup4==4.12.3
+lxml==5.3.0
+
+# ── Technical analysis (same lib as your existing code) ──
+ta==0.11.0
+pandas==2.2.3
+numpy==1.26.4
+
+# ── AI / Groq ──────────────────────────────────
+groq==0.13.0
+
+# ── Language detection (Hinglish support) ──────
+langdetect==1.0.9
+
+# ── FastAPI backend (Phase 3) ──────────────────
+fastapi==0.115.6
+uvicorn[standard]==0.32.1
+python-dotenv==1.0.1
+pydantic==2.10.3
+
+# ── Utilities ──────────────────────────────────
+httpx==0.28.1
