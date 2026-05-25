@@ -40,7 +40,7 @@ app = FastAPI(title="Stock AI Chatbot API", version="1.0.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],       # tighten to Vercel URL in production
+    allow_origins=["https://ai-stock-chatbot-v2.vercel.app/"],       # tighten to Vercel URL in production
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
