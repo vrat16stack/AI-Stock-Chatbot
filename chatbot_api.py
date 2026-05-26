@@ -38,14 +38,22 @@ GROQ_MODEL   = os.getenv("GROQ_MODEL",   "llama3-70b-8192")
 
 app = FastAPI(title="Stock AI Chatbot API", version="1.0.0")
 
+# 1. Create a list of allowed frontends (Local testing + Production Vercel)
+# Crucial: Do not put a trailing slash "/" at the end of these URLs!
+origins = [
+    "http://localhost:3000",                  # For local React development
+    "http://localhost:5173",                  # For local Vite development
+    "https://ai-stock-chatbot-v2.vercel.app" # Your live production site
+]
+
+# 2. Tell FastAPI to accept requests from these origins
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://ai-stock-chatbot-v2.vercel.app/"],       # tighten to Vercel URL in production
+    allow_origins=origins,  # Uses our list from above
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["*"],    # Allows OPTIONS, POST, GET, etc.
     allow_headers=["*"],
 )
-
 
 # ─────────────────────────────────────────────────────────────
 # Request / Response models
