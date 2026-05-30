@@ -1,32 +1,32 @@
-# ─────────────────────────────────────────────
 # Stock AI Chatbot — Backend Dependencies
-# Python 3.12 | Install: pip install -r requirements.txt
-# ─────────────────────────────────────────────
+# Python 3.12
 
-# ── Data fetching ──────────────────────────────
-yfinance==0.2.54
-requests-cache==1.2.1
+# Data fetching
 requests==2.32.3
 feedparser==6.0.11
 beautifulsoup4==4.12.3
 lxml==5.3.0
 
-# ── Technical analysis (same lib as your existing code) ──
+# Price data (Twelve Data replaces yfinance)
+# yfinance removed — blocked by Yahoo Finance on non-Indian IPs
+# Get free API key at: https://twelvedata.com
+
+# Technical analysis
 ta==0.11.0
 pandas==2.2.3
 numpy==1.26.4
 
-# ── AI / Groq ──────────────────────────────────
+# AI
 groq==0.13.0
 
-# ── Language detection (Hinglish support) ──────
+# Language detection
 langdetect==1.0.9
 
-# ── FastAPI backend (Phase 3) ──────────────────
+# FastAPI
 fastapi==0.111.0
 uvicorn==0.30.1
 python-dotenv==1.0.1
 pydantic==2.7.1
 
-# ── Utilities ──────────────────────────────────
+# Utilities
 httpx==0.28.1
