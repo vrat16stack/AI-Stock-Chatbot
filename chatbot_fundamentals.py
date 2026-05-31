@@ -13,7 +13,6 @@ Mirrors the same fundamental fields used in your stock_scout.py:
 """
 
 import requests
-import yfinance as yf
 from bs4 import BeautifulSoup
 from chatbot_price_fetcher import resolve_ticker
 
@@ -277,24 +276,12 @@ def _parse_shareholding(soup: BeautifulSoup) -> dict:
 # ─────────────────────────────────────────────────────────────
 
 def _fetch_yfinance_fundamentals(ticker: str) -> dict:
-    """Returns basic fundamental fields from yfinance."""
-    try:
-        info = yf.Ticker(ticker).info or {}
-        mc   = info.get("marketCap")
-        return {
-            "pe_ratio":       info.get("trailingPE") or info.get("forwardPE"),
-            "pb_ratio":       info.get("priceToBook"),
-            "roe":            _pct(info.get("returnOnEquity")),
-            "debt_to_equity": info.get("debtToEquity"),
-            "eps":            info.get("trailingEps"),
-            "dividend_yield": round(float(info.get("dividendYield", 0)), 2) if info.get("dividendYield") else None,
-            "current_ratio":  info.get("currentRatio"),
-            "market_cap_cr":  round(mc / 1e7, 0) if mc else None,
-            "revenue_growth_yoy": _pct(info.get("revenueGrowth")),
-            "profit_growth_yoy":  _pct(info.get("earningsGrowth")),
-        }
-    except Exception:
-        return {}
+    """
+    Fallback fundamentals — yfinance removed (blocked on Render).
+    Returns empty dict so Screener.in remains the only source.
+    All fundamental data comes from Screener scraping above.
+    """
+    return {}
 
 
 def _pct(val) -> float | None:
